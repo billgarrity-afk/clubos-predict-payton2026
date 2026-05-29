@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0E1F14">
+<title>Predictions · Payton's Graduation</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Nunito:wght@400;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0E1F14; --panel:#132B19; --card:#1A3520;
+  --green:#2E7044; --bright:#3D9955; --gold:#D4A843;
+  --cream:#F5EDD8; --dim:rgba(245,237,216,0.6); --sep:rgba(212,168,67,0.22);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; font-family:'Nunito',sans-serif; background:var(--bg); color:var(--cream); overflow:hidden; }
+.app { height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; transition:opacity 0.3s, transform 0.3s; overflow-y:auto; }
+.screen.hidden { opacity:0; transform:translateY(10px); pointer-events:none; }
+
+#landingScreen {
+  background:var(--bg); justify-content:flex-start; padding:0 24px 48px;
+}
+#landingScreen::before {
+  content:''; position:fixed; top:0;left:0;right:0;height:45%;
+  background:radial-gradient(ellipse at 50% 0%, rgba(61,153,85,0.12) 0%, transparent 65%);
+  pointer-events:none;
+}
+.inner { display:flex; flex-direction:column; align-items:center; width:100%; padding-top:max(env(safe-area-inset-top),36px); position:relative; }
+.pill { display:flex; align-items:center; gap:7px; background:rgba(212,168,67,0.1); border:1px solid rgba(212,168,67,0.3); border-radius:40px; padding:6px 16px; margin-bottom:20px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); font-weight:700; }
+.title { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:600; color:var(--cream); text-align:center; line-height:1.15; margin-bottom:8px; }
+.sub { font-size:14px; color:var(--dim); text-align:center; line-height:1.6; margin-bottom:28px; max-width:290px; }
+.sub strong { color:var(--cream); }
+
+.field-wrap { width:100%; max-width:320px; margin-bottom:14px; }
+.lbl { display:block; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:rgba(245,237,216,0.4); margin-bottom:7px; font-weight:600; }
+.inp { width:100%; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); border-radius:10px; padding:13px 14px; font-family:'Nunito',sans-serif; font-size:15px; color:var(--cream); outline:none; transition:border-color 0.2s; }
+.inp::placeholder { color:rgba(245,237,216,0.3); }
+.inp:focus { border-color:rgba(61,153,85,0.55); }
+textarea.inp { resize:none; min-height:90px; line-height:1.5; }
+.char-count { font-size:11px; color:rgba(245,237,216,0.3); text-align:right; margin-top:4px; }
+
+.submit-btn { width:100%; max-width:320px; padding:15px; background:var(--gold); color:#0E1F14; border:none; border-radius:12px; font-family:'Nunito',sans-serif; font-size:16px; font-weight:800; cursor:pointer; transition:opacity 0.2s; margin-top:4px; }
+.submit-btn:disabled { opacity:0.3; }
+.spin-row { display:none; align-items:center; gap:10px; font-size:14px; color:var(--bright); margin-top:10px; }
+.spin-row.show { display:flex; }
+.spin { width:16px; height:16px; border-radius:50%; border:2px solid rgba(61,153,85,0.3); border-top-color:var(--bright); animation:spin 0.7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+#successScreen { background:var(--bg); justify-content:center; align-items:center; gap:18px; padding:24px; text-align:center; }
+#successScreen::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse at 50% 40%, rgba(212,168,67,0.09) 0%, transparent 55%); pointer-events:none; }
+.s-icon { font-size:60px; position:relative; z-index:1; }
+.s-title { font-family:'Cormorant Garamond',serif; font-size:32px; color:var(--cream); font-weight:600; position:relative; z-index:1; }
+.s-note { font-family:'Caveat',cursive; font-size:20px; color:var(--gold); max-width:280px; line-height:1.4; position:relative; z-index:1; }
+.s-sub { font-size:14px; color:var(--dim); line-height:1.6; max-width:280px; position:relative; z-index:1; }
+.s-sub strong { color:var(--bright); }
+.another-btn { padding:13px 36px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.15); border-radius:12px; font-family:'Nunito',sans-serif; font-size:15px; font-weight:700; color:var(--cream); cursor:pointer; position:relative; z-index:1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="screen" id="landingScreen">
+  <div class="inner">
+    <div class="pill">🦁 Payton Garrity · Class of 2026</div>
+    <div class="title">Where Do You See<br>Payton in 5 Years?</div>
+    <div class="sub">Your prediction goes <strong>live on the TV</strong> and becomes part of Payton's keepsake.</div>
+
+    <div class="field-wrap">
+      <label class="lbl">Your name *</label>
+      <input class="inp" id="nameInp" type="text" placeholder="e.g. Aunt Sarah" maxlength="28" autocomplete="off" oninput="check()">
+    </div>
+    <div class="field-wrap">
+      <label class="lbl">Your prediction *</label>
+      <textarea class="inp" id="predInp" placeholder="e.g. Running his own game studio and still keeping the stuffed animals on his desk." maxlength="160" oninput="updateCount(); check()"></textarea>
+      <div class="char-count" id="charCount">0 / 160</div>
+    </div>
+    <div class="field-wrap">
+      <label class="lbl">Relationship to Payton <span style="opacity:0.45">(optional)</span></label>
+      <input class="inp" id="relInp" type="text" placeholder="e.g. Dad, Grandpa, Friend" maxlength="30" autocomplete="off">
+    </div>
+
+    <div class="spin-row" id="spinRow"><div class="spin"></div>Sending to the screen…</div>
+    <button class="submit-btn" id="submitBtn" disabled onclick="submit()">Post My Prediction →</button>
+  </div>
+</div>
+
+<div class="screen hidden" id="successScreen">
+  <div class="s-icon">💛</div>
+  <div class="s-title">It's on the screen!</div>
+  <div class="s-note">"Payton is going to love reading every single one of these."</div>
+  <p class="s-sub">Your prediction is <strong>live on the TV</strong> at the party right now.</p>
+  <button class="another-btn" onclick="addAnother()">Add Another →</button>
+</div>
+
+</div>
+<script>
+const SUPA_URL = 'https://ykfvwqewnfnibpzytspn.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZnZ3cWV3bmZuaWJwenl0c3BuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MjE2NzYsImV4cCI6MjA5MDM5NzY3Nn0.cnMltZVHDV3Hof-26aRi4NIM7wKwjzxAfoMBR3oItms';
+const PROP_ID  = 'payton-2026';
+
+function updateCount() {
+  const v = document.getElementById('predInp').value;
+  document.getElementById('charCount').textContent = v.length + ' / 160';
+}
+function check() {
+  const n = document.getElementById('nameInp').value.trim();
+  const p = document.getElementById('predInp').value.trim();
+  document.getElementById('submitBtn').disabled = !n || !p;
+}
+
+async function submit() {
+  const name = document.getElementById('nameInp').value.trim();
+  const pred = document.getElementById('predInp').value.trim();
+  const rel  = document.getElementById('relInp').value.trim();
+  if (!name || !pred) return;
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('spinRow').classList.add('show');
+
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/graduation_predictions`, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey': ANON_KEY,
+        'Authorization': `Bearer ${ANON_KEY}`,
+        'Prefer':'return=minimal'
+      },
+      body: JSON.stringify({ guest_name:name, prediction:pred, relationship:rel, property_id:PROP_ID })
+    });
+    if (!res.ok) throw new Error('Save failed');
+    showScreen('successScreen');
+  } catch(e) {
+    document.getElementById('spinRow').classList.remove('show');
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').textContent = 'Try Again';
+  }
+}
+
+function addAnother() {
+  document.getElementById('nameInp').value = '';
+  document.getElementById('predInp').value = '';
+  document.getElementById('relInp').value = '';
+  document.getElementById('charCount').textContent = '0 / 160';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('spinRow').classList.remove('show');
+  showScreen('landingScreen');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('hidden', s.id !== id));
+}
+</script>
+</body>
+</html>
